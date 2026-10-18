@@ -1,0 +1,10 @@
+{
+  "description": "Streamline rice-field monitoring with a professional web platform for agricultural technicians to review drone imagery and manage crop health effectively.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
