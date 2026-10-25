@@ -65,6 +65,10 @@ const paths: Record<string, string> = {
   filter: "M4 5h16l-6 7v5l-4 2v-7z",
   zoom: "M12 5v14M5 12h14",
   download: "M12 3v12m-5-5 5 5 5-5M5 21h14",
+  mail: "M3 5h18v14H3zM3 7l9 7 9-7",
+  lock: "M6 10h12v11H6zM8 10V7a4 4 0 0 1 8 0v3M12 15v2",
+  eye: "M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zm-3-10 2 2 4-5",
 };
 
 function Icon({ name, size = 18 }: { name: string; size?: number }) {
@@ -304,6 +308,80 @@ function Settings() {
   ].map((s,i)=><Panel key={s[0]}><div className="settings-head"><span className="settings-icon"><Icon name={i===1?"bell":i===3?"queue":i===4?"cpu":i===5?"settings":"grid"}/></span><div><h2>{s[0]}</h2><p>{s[1]}</p></div></div><div className="settings-rows">{s[2].map(x=><div key={x[0]}><span>{x[0]}</span><b className={x[1]==="Missing"||x[1].includes("Required")?"warning-text":""}>{x[1]}</b></div>)}</div><Button variant="secondary" disabled>Save changes</Button></Panel>)}</div><div className="notice"><Icon name="alert" size={17}/><span>Settings are not persisted in this UI prototype. Secrets and private key material are never displayed.</span></div></>;
 }
 
+type LoginStatus = "idle" | "loading" | "invalid";
+
+function DroneIllustration() {
+  return <svg className="login-drone" viewBox="0 0 520 260" fill="none" aria-hidden="true">
+    <ellipse cx="260" cy="223" rx="145" ry="17" fill="rgba(7,18,13,.32)"/>
+    <g className="drone-rotors" stroke="rgba(223,235,224,.68)" strokeWidth="3"><ellipse cx="79" cy="74" rx="74" ry="10"/><ellipse cx="441" cy="74" rx="74" ry="10"/><ellipse cx="127" cy="178" rx="67" ry="9"/><ellipse cx="393" cy="178" rx="67" ry="9"/></g>
+    <g stroke="#18221e" strokeWidth="14" strokeLinecap="round"><path d="m226 116-118-42M294 116l118-42M225 137l-84 37M295 137l84 37"/></g>
+    <g fill="#222d28" stroke="#66756d" strokeWidth="2"><rect x="64" y="61" width="32" height="25" rx="7"/><rect x="425" y="61" width="32" height="25" rx="7"/><rect x="111" y="165" width="32" height="25" rx="7"/><rect x="377" y="165" width="32" height="25" rx="7"/><path d="M208 105c3-17 17-28 34-28h36c17 0 31 11 34 28l9 48c2 13-8 25-21 25h-80c-13 0-23-12-21-25l9-48z"/></g>
+    <path d="M224 108h72l-8 38h-56l-8-38z" fill="#394740"/><path d="M250 178h20l6 27h-32l6-27z" fill="#151d19"/><circle cx="260" cy="207" r="8" fill="#101714" stroke="#75a843" strokeWidth="2"/><path d="M235 96h50" stroke="#75a843" strokeWidth="4" strokeLinecap="round"/><circle cx="299" cy="118" r="3" fill="#d5e956"/>
+  </svg>;
+}
+
+function LoginExperience({ onAuthenticated }: { onAuthenticated: (workspace: Workspace) => void }) {
+  const [portal, setPortal] = useState<Workspace>("technician");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [status, setStatus] = useState<LoginStatus>("idle");
+  const [submitted, setSubmitted] = useState(false);
+  const [forgot, setForgot] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const switchPortal = (next: Workspace) => { setPortal(next); setStatus("idle"); setSubmitted(false); };
+  const signIn = () => {
+    setSubmitted(true); setStatus("idle");
+    if (!email.trim() || !password) return;
+    if (email.toLowerCase().includes("invalid")) { setStatus("invalid"); return; }
+    setStatus("loading");
+    window.setTimeout(() => onAuthenticated(portal), 900);
+  };
+  const sendReset = () => { setSubmitted(true); if (email.trim()) setResetSent(true); };
+  return <div className="login-shell">
+    <section className="login-visual">
+      <img src="https://images.unsplash.com/photo-1781332150936-8370d3220ffc?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=88&w=1800" alt="Aerial view of structured green agricultural fields" />
+      <div className="login-shade"/>
+      <svg className="topo-lines" viewBox="0 0 800 900" preserveAspectRatio="none" aria-hidden="true"><path d="M-40 144c155-88 269 75 424 1s279-80 469 12M-61 183c161-89 283 69 440 3s286-75 475 7M-52 638c152-62 245 47 372 1s262-64 519 29M-34 677c160-61 249 42 375 2s253-55 486 18M579-30c-58 134 64 195 1 325s-41 254 94 354"/></svg>
+      <div className="geo-frame"><span>08° 31′ N</span><i/><span>124° 34′ E</span></div>
+      <div className="login-brand"><LogoMark/><div><b>HUMAYDRONE</b><span>Agricultural Intelligence Platform</span></div></div>
+      <DroneIllustration/>
+      <div className="login-message"><span className="campaign-label"><i/> PRECISION FIELD INTELLIGENCE</span><h1>Smarter Insights.<br/>Healthier Crops.</h1><p>Monitor agricultural missions, detect crop health issues, and turn aerial imagery into actionable insights.</p></div>
+      <div className="login-visual-footer"><span>Precision Agriculture</span><i/><span>Drone Intelligence</span><i/><span>Crop Monitoring</span></div>
+      <div className="photo-credit">Field imagery: Bernd Dittrich / Unsplash</div>
+    </section>
+    <section className="login-form-side">
+      <div className="login-mobile-brand"><LogoMark/><div><b>HUMAYDRONE</b><span>Field Intelligence</span></div></div>
+      <div className="login-form-wrap">
+        {!forgot ? <>
+          <div className="login-intro"><span>WELCOME BACK</span><h2>Sign in to HUMAYDRONE</h2><p>Choose your workspace and access your operations.</p></div>
+          <div className="portal-label">SELECT WORKSPACE</div>
+          <div className="portal-options" role="radiogroup" aria-label="Choose intended workspace">
+            <div role="radio" aria-checked={portal==="technician"} tabIndex={0} className={`portal-card ${portal==="technician"?"selected":""}`} onClick={()=>switchPortal("technician")}><span className="portal-radio"><i/></span><span className="portal-icon"><Icon name="field" size={20}/></span><div><b>Technician Portal</b><p>Field operations, missions, imagery, and detection reviews.</p></div></div>
+            <div role="radio" aria-checked={portal==="admin"} tabIndex={0} className={`portal-card ${portal==="admin"?"selected":""}`} onClick={()=>switchPortal("admin")}><span className="portal-radio"><i/></span><span className="portal-icon"><Icon name="settings" size={20}/></span><div><b>Admin Portal</b><p>System management, users, processing queues, and audit logs.</p></div></div>
+          </div>
+          <div className="permission-note"><Icon name="alert" size={14}/><span>Portal selection sets your intended workspace. Your assigned permissions still determine access.</span></div>
+          {status==="invalid"&&<div className="login-error" role="alert"><Icon name="alert" size={18}/><div><b>Unable to sign in</b><p>The email or password you entered is incorrect. Check your details and try again.</p></div></div>}
+          <div className="login-fields">
+            <label><span>Email address</span><div className={`login-input ${submitted&&!email.trim()?"has-error":""}`}><Icon name="mail" size={17}/><input type="email" value={email} onChange={e=>{setEmail(e.target.value);setStatus("idle")}} placeholder="name@organization.gov.ph" autoComplete="email"/></div>{submitted&&!email.trim()&&<small>Enter your email address.</small>}</label>
+            <label><div className="password-label"><span>Password</span><span onClick={()=>{setForgot(true);setSubmitted(false);setStatus("idle")}}>Forgot password?</span></div><div className={`login-input ${submitted&&!password?"has-error":""}`}><Icon name="lock" size={17}/><input type={showPassword?"text":"password"} value={password} onChange={e=>{setPassword(e.target.value);setStatus("idle")}} placeholder="Enter your password" autoComplete="current-password"/><div className="password-toggle" onClick={()=>setShowPassword(!showPassword)}><Icon name="eye" size={18}/></div></div>{submitted&&!password&&<small>Enter your password.</small>}</label>
+          </div>
+          <div className={`login-submit ${status==="loading"?"loading":""}`} role="button" tabIndex={0} onClick={status==="loading"?undefined:signIn}>{status==="loading"?<><span className="loader"/>Signing in securely…</>:<>Sign in as {portal==="technician"?"Technician":"Admin"}<Icon name="arrow" size={17}/></>}</div>
+          <div className="security-note"><Icon name="shield" size={16}/><span>Secure access to your authorized workspace.</span></div>
+          <div className="account-note">Need access? Accounts are created by an authorized administrator.</div>
+        </>:<>
+          <div className="back-login" onClick={()=>{setForgot(false);setSubmitted(false);setResetSent(false)}}><span>←</span> Back to sign in</div>
+          <div className="reset-icon"><Icon name="lock" size={23}/></div>
+          <div className="login-intro reset"><span>ACCOUNT RECOVERY</span><h2>Reset your password</h2><p>Enter the email address associated with your HUMAYDRONE account. If an account exists, reset instructions will be sent by the authentication service.</p></div>
+          {resetSent?<div className="reset-success"><Icon name="check" size={20}/><div><b>Check your email</b><p>If an account is associated with <strong>{email}</strong>, password reset instructions will be sent.</p></div></div>:<><div className="login-fields single"><label><span>Email address</span><div className={`login-input ${submitted&&!email.trim()?"has-error":""}`}><Icon name="mail" size={17}/><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@organization.gov.ph" autoComplete="email"/></div>{submitted&&!email.trim()&&<small>Enter your email address.</small>}</label></div><div className="login-submit" role="button" tabIndex={0} onClick={sendReset}>Send reset instructions<Icon name="arrow" size={17}/></div></>}
+          <div className="security-note"><Icon name="shield" size={16}/><span>For security, we do not confirm whether an account exists.</span></div>
+        </>}
+      </div>
+      <div className="login-form-footer"><span>HUMAYDRONE · Frontend prototype</span><span>Privacy & security</span></div>
+    </section>
+  </div>;
+}
+
 function LogoMark() {
   return <span className="logo-mark"><svg viewBox="0 0 38 38" fill="none"><path d="M19 33V17m0 7c-7 0-10-4-10-10 7 0 10 4 10 10zm0-4c6 0 9-3 9-9-6 0-9 3-9 9z" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 8h6M8 5v6m19-3h6m-3-3v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg></span>;
 }
@@ -331,10 +409,12 @@ function AppContent({ page, go }: { page: Page; go:(p:Page)=>void }) {
 }
 
 export default function App() {
+  const [authenticated,setAuthenticated]=useState(false);
   const [workspace,setWorkspace]=useState<Workspace>("technician");
   const [page,setPage]=useState<Page>("Overview");
   const [profile,setProfile]=useState(false);
   const [notifs,setNotifs]=useState(false);
   const [mobileOpen,setMobileOpen]=useState(false);
-  return <div className="app-shell"><Sidebar workspace={workspace} page={page} setPage={setPage} setWorkspace={setWorkspace} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}/><div className="app-main"><header><div className="mobile-menu" onClick={()=>setMobileOpen(true)}><Icon name="list"/></div><div className="header-context"><span>HUMAYDRONE</span><i>/</i><b>{workspace==="technician"?"Technician workspace":"Developer–Admin workspace"}</b></div><div className="top-actions"><div className="icon-button" onClick={()=>setNotifs(!notifs)}><Icon name="bell"/><span className="notification-dot"/></div><div className="profile" onClick={()=>setProfile(!profile)}><span className="avatar">ES</span><div><b>Elena Santos</b><span>Demo technician</span></div><Icon name="chevron" size={14}/></div></div>{notifs&&<div className="popover notifications"><div className="popover-head"><b>Notifications</b><Badge tone="warning">3 new</Badge></div><div><b>7 detections await review</b><p>Riverside Demo Farm and 2 others</p></div><div><b>Processing job failed</b><p>JOB-8841 · Inference timeout</p></div><span className="popover-foot">Prototype notifications only</span></div>}{profile&&<div className="popover profile-menu"><div><b>Elena Santos</b><p>elena.santos@example.demo</p></div><span>Profile preferences</span><span onClick={()=>{setWorkspace(workspace==="admin"?"technician":"admin");setPage(workspace==="admin"?"Overview":"System Overview");setProfile(false)}}>Switch workspace</span><span>Sign out (prototype)</span></div>}</header><main><AppContent page={page} go={setPage}/></main></div></div>;
+  if(!authenticated) return <LoginExperience onAuthenticated={next=>{setWorkspace(next);setPage(next==="technician"?"Overview":"System Overview");setAuthenticated(true)}}/>;
+  return <div className="app-shell"><Sidebar workspace={workspace} page={page} setPage={setPage} setWorkspace={setWorkspace} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen}/><div className="app-main"><header><div className="mobile-menu" onClick={()=>setMobileOpen(true)}><Icon name="list"/></div><div className="header-context"><span>HUMAYDRONE</span><i>/</i><b>{workspace==="technician"?"Technician workspace":"Developer–Admin workspace"}</b></div><div className="top-actions"><div className="icon-button" onClick={()=>setNotifs(!notifs)}><Icon name="bell"/><span className="notification-dot"/></div><div className="profile" onClick={()=>setProfile(!profile)}><span className="avatar">ES</span><div><b>Elena Santos</b><span>Demo technician</span></div><Icon name="chevron" size={14}/></div></div>{notifs&&<div className="popover notifications"><div className="popover-head"><b>Notifications</b><Badge tone="warning">3 new</Badge></div><div><b>7 detections await review</b><p>Riverside Demo Farm and 2 others</p></div><div><b>Processing job failed</b><p>JOB-8841 · Inference timeout</p></div><span className="popover-foot">Prototype notifications only</span></div>}{profile&&<div className="popover profile-menu"><div><b>Elena Santos</b><p>elena.santos@example.demo</p></div><span>Profile preferences</span><span onClick={()=>{setWorkspace(workspace==="admin"?"technician":"admin");setPage(workspace==="admin"?"Overview":"System Overview");setProfile(false)}}>Switch workspace</span><span onClick={()=>{setAuthenticated(false);setProfile(false)}}>Sign out</span></div>}</header><main><AppContent page={page} go={setPage}/></main></div></div>;
 }
